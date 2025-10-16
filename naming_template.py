@@ -3,6 +3,7 @@ import string
 class NamingTemplate:
     metadata_available : list = ["album", "albumartist", "artist", "comment", "composer", "disc", "disk_total", "genre", "title", "track", "track_total", "year"]
     valid_characters : list = list(string.ascii_letters + "-_().',!")
+    default_template : list = ["albumartist","-", "title"]
 
     def __init__(self, template: str) -> None:
         parts = template.strip().split(" ")
@@ -13,6 +14,12 @@ class NamingTemplate:
 
     def get_template(self):
         return self.template_list
+
+    def get_metadata(self):
+        return ", ".join(self.metadata_available)
+
+    def get_default(self):
+        return self.default_template
 
 
 if __name__ == "__main__":

@@ -34,8 +34,9 @@ def rename(path: str, type: str, naming_template: NamingTemplate):
         for file in list_of_items:
             tag : TinyTag = TinyTag.get(file)
             tag_list = [getattr(tag,i) if i in naming_template.metadata_available else i for i in naming_template.get_template()] # type: ignore
-            new_name : str = " ".join(tag_list)
-            file.rename(f"{new_name}") 
+            new_name : str = " ".join(tag_list) + file.suffix
+            new_path : Path = file.with_name(new_name)
+            file.rename(f"{new_path}") 
             
 
 def create_naming_template(template_input):

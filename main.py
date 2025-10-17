@@ -33,9 +33,9 @@ def rename(path: str, type: str, naming_template: NamingTemplate):
     if type == "album":
         for file in list_of_items:
             tag : TinyTag = TinyTag.get(file)
-            name_with_tag = [getattr(tag,i) for i in naming_template.get_template() if i in naming_template.metadata_available] # type: ignore
-            print(name_with_tag)
-            # file.rename(f"{naming_template}") 
+            tag_list = [getattr(tag,i) if i in naming_template.metadata_available else i for i in naming_template.get_template()] # type: ignore
+            new_name : str = " ".join(tag_list)
+            file.rename(f"{new_name}") 
             
 
 def create_naming_template(template_input):

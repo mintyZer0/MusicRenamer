@@ -18,7 +18,7 @@ def get_directory_path(type: str) -> str:
     path = input(f"Input {type} path:")
     return path
 
-def get_list_of_files(path: str) -> list:
+def get_list_of_files(path: str) -> list[Path]:
     valid_files = (
     '.mp3', '.wav', '.flac', '.aac', '.ogg', '.oga', '.opus', '.m4a', '.m4b', 
     '.m4p', '.wma', '.aiff', '.alac', '.ape', '.wv', '.tta', '.mpc', '.webm',
@@ -27,23 +27,31 @@ def get_list_of_files(path: str) -> list:
     '.nmf', '.mogg', '.ra', '.rm', '.raw', '.rf64', '.sln', '.voc', '.vox', 
     '.8svx', '.cda')
     directory = Path(path)
-    list_of_files = [i for i in directory.iterdir() if i.is_file() and i.suffix in valid_files]
+    list_of_files = [i for i in directory.rglob('*') if i.is_file() and i.suffix in valid_files]
     return list_of_files
+
+def print_list_of_files(file_list: list[Path]):
+    for file in file_list:
+        print(file)
+
 
 def _rename_indiv_file(file : Path, naming_template: NamingTemplate) -> None:
         tag : TinyTag = TinyTag.get(file)
         tagged_name : list = [getattr(tag,i) if i in naming_template.metadata_available else i for i in naming_template.get_template()]
         new_name : str = " ".join(tagged_name) + file.suffix
         new_path : Path = file.with_name(new_name)
+        if file.with_suffix('.lrc').exists:
+            file.with_suffix('.lrc').rename(new_path.with_suffix('.lrc'))
         file.rename(new_path) 
  
 def rename(path: str, type: str, naming_template: NamingTemplate) -> None:
-    if type == "album":
-        list_of_files = get_list_of_files(path)
+    if type == "folder":
+        list_of_files : list[Path] = get_list_of_files(path)
+        print_list_of_files(list_of_files)
         for file in list_of_files:
             _rename_indiv_file(file, naming_template) 
 
-    if type == "track":
+    if type == "file":
         file = Path(path)
         _rename_indiv_file(file, naming_template) 
 
@@ -65,6 +73,7 @@ def read_config(config_file_path: str) -> None:
 
 while True:
     print("-"*5 + "Music Renamer" + "-"*5)
+
     if is_first_run():
         print("Please create a naming template")
         template_input = input("")
@@ -95,15 +104,14 @@ while True:
         
     elif command == "2": 
         while True:
-            print("Choose type:(album, track)")
+            print("Choose type:(folder, file)")
             command = input()
-            if command == "album":
-                path = get_directory_path(command)
+            path = get_directory_path(command)
+            if command == "folder":
                 rename(path, command, naming_template)
                 break
 
-            elif command == "track":
-                path = get_directory_path(command)
+            elif command == "file":
                 rename (path, command, naming_template)
                 break
             

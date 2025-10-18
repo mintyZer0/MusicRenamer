@@ -29,14 +29,22 @@ def get_list_of_items(path: str):
     return list_of_items
 
 def rename(path: str, type: str, naming_template: NamingTemplate):
-    list_of_items = get_list_of_items(path)
     if type == "album":
+        list_of_items = get_list_of_items(path)
         for file in list_of_items:
             tag : TinyTag = TinyTag.get(file)
             tag_list = [getattr(tag,i) if i in naming_template.metadata_available else i for i in naming_template.get_template()] # type: ignore
             new_name : str = " ".join(tag_list) + file.suffix
             new_path : Path = file.with_name(new_name)
-            file.rename(f"{new_path}") 
+            file.rename(new_path) 
+            
+    if type == "track":
+            file = Path(path)
+            tag :TinyTag = TinyTag.get(file)
+            tag_list = [getattr(tag, i) if i in naming_template.metadata_available else i for i in naming_template.get_template()]
+            new_name : str = " ".join(tag_list) + file.suffix
+            new_path : Path = file.with_name(new_name)
+            file.rename(new_path)
             
 
 def create_naming_template(template_input):
